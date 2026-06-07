@@ -1,0 +1,6 @@
+{
+  "name": "İstanbul'un Yaşayan Esnaf ve Zanaatkarları",
+  "description": "İstanbul'un somut olmayan kültürel mirasını korumayı amaçlayan, scrollytelling tabanlı ve Leaflet haritalı esnaf ve zanaatkarlar haritası.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
