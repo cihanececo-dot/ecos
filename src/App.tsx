@@ -5,8 +5,9 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import papa from 'papaparse';
-import { Search, Filter, RefreshCw, AlertCircle, Compass, MapPin, Sparkles } from 'lucide-react';
+import { Search, Filter, RefreshCw, AlertCircle, Compass, MapPin, Sparkles, Heart } from 'lucide-react';
 import { Esnaf } from './types';
+import { Hero } from './components/Hero';
 import { Header } from './components/Header';
 import { ArtisanCard } from './components/ArtisanCard';
 import { MapSection } from './components/MapSection';
@@ -21,6 +22,17 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [activeId, setActiveId] = useState<string | null>(null);
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState<boolean>(false);
+  const [favorites, setFavorites] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem('ist-esnaf-favs');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const appSectionRef = useRef<HTMLDivElement>(null);
 
   // Scroll lock ref to prevent observer collisions when scrolling programmatically
   const isScrollingRef = useRef<boolean>(false);
@@ -45,6 +57,18 @@ export default function App() {
 
   const handleToggleTheme = () => {
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  };
+
+  const handleToggleFavorite = (id: string) => {
+    setFavorites(prev => {
+      const next = prev.includes(id) ? prev.filter(fId => fId !== id) : [...prev, id];
+      localStorage.setItem('ist-esnaf-favs', JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const scrollToApp = () => {
+    appSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   // 1. Fetch live CSV data and parse
@@ -89,6 +113,7 @@ export default function App() {
                 telefon: row.telefon || '',
                 gorsel: row['görsel'] || row.gorsel || '',
                 video: videoUrl,
+                yil: row.yil || row['yıl'] || '',
               };
             })
             // Filter out corrupt lines that don't have valid locations
@@ -96,6 +121,13 @@ export default function App() {
               const hasName = item.mekan && item.mekan.trim().length > 0;
               const hasCoordinates = !isNaN(item.enlem) && !isNaN(item.boylam);
               return hasName && hasCoordinates;
+            })
+            .sort((a, b) => {
+              const aIsKatia = a.mekan.toLowerCase().includes('butik k');
+              const bIsKatia = b.mekan.toLowerCase().includes('butik k');
+              if (aIsKatia && !bIsKatia) return -1;
+              if (!aIsKatia && bIsKatia) return 1;
+              return 0;
             });
 
           setArtisans(mapped);
@@ -138,9 +170,11 @@ export default function App() {
         artisan.adres.toLowerCase().includes(cleanSearch) ||
         artisan.kategori.toLowerCase().includes(cleanSearch);
       
-      return matchesCategory && matchesSearch;
+      const matchesFavorites = showFavoritesOnly ? favorites.includes(artisan.no) : true;
+
+      return matchesCategory && matchesSearch && matchesFavorites;
     });
-  }, [artisans, selectedCategory, searchQuery]);
+  }, [artisans, selectedCategory, searchQuery, showFavoritesOnly, favorites]);
 
   // Adjust active ID if current selection gets excluded by filter changes
   useEffect(() => {
@@ -208,17 +242,20 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-root text-content flex flex-col font-sans selection:bg-accent selection:text-root">
+    <div className="min-h-screen bg-root text-content flex flex-col font-sans selection:bg-accent selection:text-root scroll-smooth">
       
-      {/* Branding Header Banner */}
-      <Header 
-        filteredCount={filteredArtisans.length} 
-        selectedCategory={selectedCategory}
-        theme={theme}
-        onToggleTheme={handleToggleTheme}
-      />
+      <Hero onDiscover={scrollToApp} />
 
-      {/* Control center: Category Pill bar & Searching box */}
+      <div ref={appSectionRef} className="flex flex-col flex-1 min-h-screen">
+        {/* Branding Header Banner */}
+        <Header 
+          filteredCount={filteredArtisans.length} 
+          selectedCategory={selectedCategory}
+          theme={theme}
+          onToggleTheme={handleToggleTheme}
+        />
+
+        {/* Control center: Category Pill bar & Searching box */}
       <section className="bg-surface/60 border-b border-border py-4 px-6 md:px-8 z-30 sticky top-0 shadow-lg backdrop-blur-md">
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           
@@ -226,13 +263,28 @@ export default function App() {
           <div className="flex items-center gap-3 overflow-x-auto pb-1.5 lg:pb-0 scrollbar-none w-full lg:w-auto">
             <span className="text-content-muted font-mono text-[10px] font-bold tracking-widest flex items-center gap-1.5 shrink-0 bg-root px-2.5 py-1 rounded border border-border-strong">
               <Filter className="w-3.5 h-3.5 text-accent" />
-              KATEGORİLER:
+              FİLTRELER:
             </span>
             <div className="flex gap-2 bg-root/80 p-1 rounded-lg border border-border">
+              <button
+                onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+                className={`flex items-center gap-1.5 text-xs px-3.5 py-1.5 rounded-md font-medium cursor-pointer transition-all duration-300 shrink-0 ${
+                  showFavoritesOnly
+                    ? 'bg-rose-500/10 text-rose-500 font-semibold border-rose-500/20 shadow-sm'
+                    : 'text-content-sec hover:text-content hover:bg-surface'
+                }`}
+              >
+                <Heart className={`w-3.5 h-3.5 ${showFavoritesOnly ? 'fill-rose-500' : ''}`} />
+                Favoriler
+              </button>
+              <div className="w-px bg-border my-1" />
               {categories.map((cat) => (
                 <button
                   key={cat}
-                  onClick={() => setSelectedCategory(cat)}
+                  onClick={() => {
+                    setSelectedCategory(cat);
+                    if (showFavoritesOnly) setShowFavoritesOnly(false);
+                  }}
                   className={`text-xs px-4 py-1.5 rounded-md font-medium cursor-pointer transition-all duration-300 shrink-0 ${
                     selectedCategory === cat
                       ? 'bg-accent text-root font-semibold shadow-sm'
@@ -326,6 +378,8 @@ export default function App() {
                       artisan={artisan}
                       isActive={artisan.no === activeId}
                       onFocus={handleSelectArtisan}
+                      isFavorite={favorites.includes(artisan.no)}
+                      onToggleFavorite={handleToggleFavorite}
                     />
                   ))}
                 </div>
@@ -364,7 +418,7 @@ export default function App() {
           <a href="#" onClick={(e) => e.preventDefault()} className="hover:text-accent transition-colors">İletişim</a>
         </div>
       </footer>
-
+      </div>
     </div>
   );
 }

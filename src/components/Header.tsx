@@ -28,18 +28,14 @@ export function Header({ filteredCount, selectedCategory, theme, onToggleTheme }
               <span>Somut Olmayan Kültürel Miras Envanteri</span>
             </div>
             
-            {/* Main Editorial Title */}
-            <h1 className="font-serif text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight text-content">
+            {/* Main Editorial Title Small */}
+            <h1 className="font-serif text-xl md:text-2xl font-bold tracking-tight text-content">
               İSTANBUL'UN <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent to-accent-light">YAŞAYAN ESNAFI</span>
             </h1>
-            
-            <p className="text-content-sec text-xs max-w-2xl mt-1 leading-relaxed">
-              Yüzyıllardır dar sokaklarda gürültülü çekiç sesleriyle, kokularıyla ve kadim el becerileriyle şehrin ruhunu ayakta tutan asırlık çınarların dijital hikaye atlası.
-            </p>
           </div>
         </div>
 
-        {/* Dynamic Status Badges & Controls */}
+        {/* Controls */}
         <div className="flex flex-wrap items-center gap-3">
           {selectedCategory !== 'Tümü' && (
             <div className="bg-surface-hover border border-border-strong rounded-lg px-4 py-2 flex items-center gap-3 animate-fade-in shadow-inner">

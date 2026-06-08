@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import { Esnaf } from '../types';
+import { motion, useSpring, useTransform } from 'motion/react';
 
 interface MapSectionProps {
   filteredArtisans: Esnaf[];
@@ -32,6 +33,64 @@ function getMarkerIcon(isActive: boolean, category: string): L.DivIcon {
     iconSize: [30, 30],
     iconAnchor: [15, 15],
   });
+}
+
+function RollingNumber({ value }: { value: number }) {
+  const springValue = useSpring(value, { stiffness: 60, damping: 15, restDelta: 0.5 });
+  
+  useEffect(() => {
+    springValue.set(value);
+  }, [springValue, value]);
+
+  const display = useTransform(springValue, (latest) => Math.round(latest).toString());
+
+  return <motion.span>{display}</motion.span>;
+}
+
+function YilCounter({ yil }: { yil?: string | number }) {
+  const [lastYil, setLastYil] = React.useState<string | number>('');
+
+  React.useEffect(() => {
+    if (yil) setLastYil(yil);
+  }, [yil]);
+
+  const activeYil = yil || lastYil || '—';
+  const isNumber = activeYil !== '—' && String(activeYil).trim() !== '' && !isNaN(Number(activeYil));
+
+  return (
+    <div className="absolute top-6 right-6 z-[500] pointer-events-none group rounded-full">
+      <div className="relative flex items-center justify-center w-28 h-28 bg-surface/80 border border-border-strong rounded-full shadow-2xl backdrop-blur-md overflow-hidden transition-all duration-300">
+        
+        {/* Dairesel Akan Sayaç Çizgisi (Circular Flowing Dashed Ring) */}
+        <svg className="absolute inset-0 w-full h-full text-accent animate-[spin_10s_linear_infinite] opacity-40 mix-blend-overlay" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="46" fill="none" strokeWidth="1.5" stroke="currentColor" strokeDasharray="6 6" />
+          <circle cx="50" cy="50" r="41" fill="none" strokeWidth="0.5" stroke="currentColor" strokeDasharray="4 8" className="animate-[spin_15s_linear_infinite_reverse]" style={{ transformOrigin: 'center' }} />
+        </svg>
+
+        {/* İçerik */}
+        <div className="relative flex flex-col items-center justify-center z-10">
+          <span className="text-[9px] font-mono font-bold tracking-[0.2em] text-content-muted uppercase mb-0.5">Kuruluş</span>
+          <div className="flex items-center justify-center">
+            {isNumber ? (
+              <span className="text-3xl font-serif font-bold text-transparent bg-clip-text bg-gradient-to-br from-accent to-accent-hover tracking-tighter drop-shadow-sm">
+                <RollingNumber value={Number(activeYil)} />
+              </span>
+            ) : (
+              <motion.span 
+                key={String(activeYil)}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.4 }}
+                className="text-xl font-serif italic text-accent px-2 text-center leading-tight drop-shadow-sm"
+              >
+                {activeYil}
+              </motion.span>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export function MapSection({ filteredArtisans, activeId, onSelectArtisan, theme = 'light' }: MapSectionProps) {
@@ -136,8 +195,8 @@ export function MapSection({ filteredArtisans, activeId, onSelectArtisan, theme 
           ${
             artisan.gorsel
               ? `
-            <div class="w-full h-20 overflow-hidden rounded border border-border mt-2">
-              <img src="${artisan.gorsel}" class="w-full h-full object-cover" referrerpolicy="no-referrer" />
+            <div class="w-full max-h-44 overflow-hidden rounded border border-border mt-2 flex justify-center bg-surface-hover">
+              <img src="${artisan.gorsel}" class="w-full h-auto object-contain max-h-44" referrerpolicy="no-referrer" />
             </div>
             `
               : ''
@@ -240,7 +299,7 @@ export function MapSection({ filteredArtisans, activeId, onSelectArtisan, theme 
 
       {/* Scale & Info Overlay aligning with Elegant Dark specification */}
       {activeArtisan && (
-        <div className="absolute bottom-4 left-4 p-3 bg-surface border border-border-strong rounded-lg backdrop-blur-md z-10 shadow-2xl transition-all duration-500 animate-fade-in">
+        <div className="absolute bottom-4 left-4 p-3 bg-surface border border-border-strong rounded-lg backdrop-blur-md z-[400] shadow-2xl transition-all duration-500 animate-fade-in pointer-events-none">
           <div className="flex items-center gap-3">
             <div className="flex flex-col">
               <p className="text-[9px] font-mono text-content-muted uppercase tracking-widest">Koordinatlar</p>
@@ -254,6 +313,8 @@ export function MapSection({ filteredArtisans, activeId, onSelectArtisan, theme 
           </div>
         </div>
       )}
+      
+      <YilCounter yil={activeArtisan?.yil} />
 
       {/* Actual Map Container */}
       <div

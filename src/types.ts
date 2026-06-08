@@ -13,4 +13,5 @@ export interface Esnaf {
   telefon: string;
   gorsel: string;
   video: string;
+  yil: string | number;
 }
