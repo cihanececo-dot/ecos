@@ -400,7 +400,7 @@ export default function App() {
                   </button>
                 </div>
               ) : (
-                <div className="space-y-6 max-h-[calc(100vh-180px)] overflow-y-auto pr-2 pb-24 scroll-smooth">
+                <div className="space-y-6 md:max-h-[calc(100vh-180px)] md:overflow-y-auto md:pr-2 pb-8 md:pb-24 scroll-smooth">
                   {filteredArtisans.map((artisan) => (
                     <ArtisanCard
                       key={artisan.no}

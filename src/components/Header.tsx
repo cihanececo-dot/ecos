@@ -21,11 +21,11 @@ export function Header({ filteredCount, selectedCategory, theme, onToggleTheme, 
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-6 relative z-10">
         <div className="flex items-start md:items-center gap-4">
           {/* Elegant Dark Brand Icon */}
-          <div className="w-20 h-20 bg-root rounded-full flex items-center justify-center shadow-lg shadow-accent/20 shrink-0 select-none overflow-hidden border-2 border-border/50">
+          <div className="w-14 h-14 md:w-20 md:h-20 bg-root rounded-full flex items-center justify-center shadow-lg shadow-accent/20 shrink-0 select-none overflow-hidden border-2 border-border/50">
             {projectLogo ? (
               <img src={projectLogo} alt="Logo" className="w-full h-full object-cover object-center" referrerPolicy="no-referrer" />
             ) : (
-              <span className="text-4xl font-bold italic text-content">İ</span>
+              <span className="text-2xl md:text-4xl font-bold italic text-content">İ</span>
             )}
           </div>
           <div>
