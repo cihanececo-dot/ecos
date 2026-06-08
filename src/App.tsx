@@ -203,35 +203,43 @@ export default function App() {
   useEffect(() => {
     if (loading || filteredArtisans.length === 0) return;
 
-    const observerOptions = {
-      root: null, // observation is relative to the browser viewport
-      rootMargin: '-20% 0px -55% 0px', // focused when card centers around upper-middle
-      threshold: 0.1,
-    };
+    // Use a small timeout to ensure DOM is fully rendered
+    const timeoutId = setTimeout(() => {
+      const container = document.getElementById('artisan-list-container');
+      const isDesktop = window.matchMedia('(min-width: 768px)').matches;
 
-    const handleIntersection = (entries: IntersectionObserverEntry[]) => {
-      // Bypass when user manually clicked to zoom (prevent jitter jumps)
-      if (isScrollingRef.current) return;
+      const observerOptions = {
+        root: isDesktop ? container : null,
+        rootMargin: isDesktop ? '-10% 0px -40% 0px' : '-20% 0px -40% 0px',
+        threshold: 0.1,
+      };
 
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          const id = entry.target.getAttribute('data-id');
-          if (id) {
-            setActiveId(id);
+      const handleIntersection = (entries: IntersectionObserverEntry[]) => {
+        // Bypass when user manually clicked to zoom (prevent jitter jumps)
+        if (isScrollingRef.current) return;
+
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const id = entry.target.getAttribute('data-id');
+            if (id) {
+              setActiveId(id);
+            }
           }
-        }
-      });
-    };
+        });
+      };
 
-    const observer = new IntersectionObserver(handleIntersection, observerOptions);
+      const observer = new IntersectionObserver(handleIntersection, observerOptions);
 
-    // Observe each story card
-    const cards = document.querySelectorAll('.artisan-card-scroll');
-    cards.forEach((card) => observer.observe(card));
+      // Observe each story card
+      const cards = document.querySelectorAll('.artisan-card-scroll');
+      cards.forEach((card) => observer.observe(card));
 
-    return () => {
-      observer.disconnect();
-    };
+      return () => {
+        observer.disconnect();
+      };
+    }, 100);
+
+    return () => clearTimeout(timeoutId);
   }, [filteredArtisans, loading]);
 
   // 5. Dual correlation link: selecting an artisan triggers scroll aligning with scroll locks
@@ -400,7 +408,7 @@ export default function App() {
                   </button>
                 </div>
               ) : (
-                <div className="space-y-6 md:max-h-[calc(100vh-180px)] md:overflow-y-auto md:pr-2 pb-8 md:pb-24 scroll-smooth">
+                <div id="artisan-list-container" className="space-y-6 md:max-h-[calc(100vh-180px)] md:overflow-y-auto md:pr-2 pb-8 md:pb-24 scroll-smooth">
                   {filteredArtisans.map((artisan) => (
                     <ArtisanCard
                       key={artisan.no}

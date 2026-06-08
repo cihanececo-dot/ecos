@@ -290,7 +290,7 @@ export function ArtisanCard({ artisan, isActive, onFocus, isFavorite, onToggleFa
                     className="absolute left-0 right-0 bottom-0 bg-gradient-to-t from-accent to-accent-hover w-full rounded-full origin-bottom"
                     initial={{ height: "0%" }}
                     whileInView={{ height: `${experiencePercentage}%` }}
-                    viewport={{ once: true, margin: "-10px" }}
+                    viewport={{ once: false, margin: "-10px" }}
                     transition={{ type: "spring", bounce: 0.35, duration: 1.8 }} 
                   >
                     {/* Subtle shine on the liquid fill to make it look full */}
