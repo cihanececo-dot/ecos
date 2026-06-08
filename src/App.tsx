@@ -11,6 +11,7 @@ import { Hero } from './components/Hero';
 import { Header } from './components/Header';
 import { ArtisanCard } from './components/ArtisanCard';
 import { MapSection } from './components/MapSection';
+import { ArchiveView } from './components/ArchiveView';
 
 const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTQuAMeW0sBg_sGwT0sMshAYlKdAMmO8qF_JiNXrOuqxEOgXKDDEry-Glse-eP-RRKP9OFOhoSdW671/pub?output=csv';
 
@@ -22,6 +23,7 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [activeId, setActiveId] = useState<string | null>(null);
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [viewMode, setViewMode] = useState<'map' | 'archive'>('map');
   const [showFavoritesOnly, setShowFavoritesOnly] = useState<boolean>(false);
   const [favorites, setFavorites] = useState<string[]>(() => {
     try {
@@ -230,15 +232,18 @@ export default function App() {
     // Lock observer action
     isScrollingRef.current = true;
 
-    const el = document.getElementById(`artisan-card-${id}`);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-
-    // Release scroll lock after animating
+    // Use requestAnimationFrame or setTimeout to allow DOM to render if we just switched views
     setTimeout(() => {
-      isScrollingRef.current = false;
-    }, 1200);
+      const el = document.getElementById(`artisan-card-${id}`);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+
+      // Release scroll lock after animating
+      setTimeout(() => {
+        isScrollingRef.current = false;
+      }, 1200);
+    }, 50);
   };
 
   return (
@@ -253,6 +258,8 @@ export default function App() {
           selectedCategory={selectedCategory}
           theme={theme}
           onToggleTheme={handleToggleTheme}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
         />
 
         {/* Control center: Category Pill bar & Searching box */}
@@ -345,7 +352,19 @@ export default function App() {
         )}
 
         {/* Successful data load rendering */}
-        {!loading && !error && (
+        {!loading && !error && viewMode === 'archive' && (
+          <section className="col-span-12">
+            <ArchiveView 
+              artisans={filteredArtisans} 
+              onGoToStory={(id) => {
+                setViewMode('map');
+                handleSelectArtisan(id);
+              }}
+            />
+          </section>
+        )}
+
+        {!loading && !error && viewMode === 'map' && (
           <>
             {/* LEFT STREAM: Narrative scrollytelling column (Grid 5/12 width) */}
             <section className="col-span-12 md:col-span-5 flex flex-col space-y-6 order-2 md:order-1 pt-4">

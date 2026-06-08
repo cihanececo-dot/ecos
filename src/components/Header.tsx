@@ -1,14 +1,16 @@
 import React from 'react';
-import { Compass, Heart, Moon, Sun } from 'lucide-react';
+import { Compass, Heart, Moon, Sun, LayoutGrid, Map } from 'lucide-react';
 
 interface HeaderProps {
   filteredCount: number;
   selectedCategory: string;
   theme: 'light' | 'dark';
   onToggleTheme: () => void;
+  viewMode: 'map' | 'archive';
+  onViewModeChange: (mode: 'map' | 'archive') => void;
 }
 
-export function Header({ filteredCount, selectedCategory, theme, onToggleTheme }: HeaderProps) {
+export function Header({ filteredCount, selectedCategory, theme, onToggleTheme, viewMode, onViewModeChange }: HeaderProps) {
   return (
     <header className="border-b border-border bg-overlay backdrop-blur-md p-6 md:p-8 relative overflow-hidden z-20">
       {/* Decorative backdrop patterns from the design */}
@@ -38,7 +40,7 @@ export function Header({ filteredCount, selectedCategory, theme, onToggleTheme }
         {/* Controls */}
         <div className="flex flex-wrap items-center gap-3">
           {selectedCategory !== 'Tümü' && (
-            <div className="bg-surface-hover border border-border-strong rounded-lg px-4 py-2 flex items-center gap-3 animate-fade-in shadow-inner">
+            <div className="bg-surface-hover border border-border-strong rounded-lg px-4 py-2 flex items-center gap-3 animate-fade-in shadow-inner hidden sm:flex">
               <Heart className="w-5 h-5 text-accent" />
               <div>
                 <div className="text-content-muted text-[9px] font-mono uppercase tracking-wider">{selectedCategory}</div>
@@ -46,6 +48,32 @@ export function Header({ filteredCount, selectedCategory, theme, onToggleTheme }
               </div>
             </div>
           )}
+
+          {/* View Mode Toggle Button */}
+          <div className="flex bg-surface border border-border-strong rounded-lg p-1 shadow-inner">
+            <button
+              onClick={() => onViewModeChange('map')}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-mono font-bold uppercase transition-all duration-300 ${
+                viewMode === 'map' 
+                  ? 'bg-accent text-root shadow' 
+                  : 'text-content-sec hover:text-content hover:bg-surface-hover'
+              }`}
+            >
+              <Map className="w-4 h-4" />
+              <span className="hidden sm:inline">Harita</span>
+            </button>
+            <button
+              onClick={() => onViewModeChange('archive')}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-mono font-bold uppercase transition-all duration-300 ${
+                viewMode === 'archive' 
+                  ? 'bg-accent text-root shadow' 
+                  : 'text-content-sec hover:text-content hover:bg-surface-hover'
+              }`}
+            >
+              <LayoutGrid className="w-4 h-4" />
+              <span className="hidden sm:inline">Arşiv</span>
+            </button>
+          </div>
           
           {/* Theme Toggle Button */}
           <button

@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import { Esnaf } from '../types';
 import { motion, useSpring, useTransform } from 'motion/react';
+import { getFallbackImage } from '../imageHelper';
 
 interface MapSectionProps {
   filteredArtisans: Esnaf[];
@@ -175,6 +176,8 @@ export function MapSection({ filteredArtisans, activeId, onSelectArtisan, theme 
       const popupContentDiv = document.createElement('div');
       popupContentDiv.className = 'p-1 text-content max-w-xs font-sans text-left';
       
+      const displayImage = getFallbackImage(artisan);
+
       popupContentDiv.innerHTML = `
         <div class="space-y-1">
           <div class="flex items-center justify-between gap-2">
@@ -192,15 +195,9 @@ export function MapSection({ filteredArtisans, activeId, onSelectArtisan, theme 
               ? `<p class="text-[11px] font-mono text-accent mt-1">📞 ${artisan.telefon}</p>`
               : ''
           }
-          ${
-            artisan.gorsel
-              ? `
-            <div class="w-full max-h-44 overflow-hidden rounded border border-border mt-2 flex justify-center bg-surface-hover">
-              <img src="${artisan.gorsel}" class="w-full h-auto object-contain max-h-44" referrerpolicy="no-referrer" />
-            </div>
-            `
-              : ''
-          }
+          <div class="w-full max-h-44 overflow-hidden rounded border border-border mt-2 flex justify-center bg-surface-hover">
+            <img src="${displayImage}" class="w-full h-auto object-contain max-h-44" referrerpolicy="no-referrer" />
+          </div>
           <button class="w-full mt-2 bg-accent hover:bg-accent-hover text-root text-[10px] font-bold py-1.5 rounded cursor-pointer transition text-center focus-view-btn pointer-events-auto">
             HİKAYEYE GİT →
           </button>

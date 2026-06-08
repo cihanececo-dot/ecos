@@ -24,6 +24,8 @@ function getYoutubeEmbedUrl(url: string | undefined): string | null {
   return null;
 }
 
+import { getFallbackImage } from '../imageHelper';
+
 /**
  * Dynamically generates a nostalgic story snippet based on artisan details
  */
@@ -201,6 +203,8 @@ export function ArtisanCard({ artisan, isActive, onFocus, isFavorite, onToggleFa
   // Cap at 100 for visual percentage display
   const experiencePercentage = Math.min(100, Math.max(0, experienceYears));
 
+  const displayImage = getFallbackImage(artisan);
+
   return (
     <article
       id={`artisan-card-${artisan.no}`}
@@ -213,22 +217,16 @@ export function ArtisanCard({ artisan, isActive, onFocus, isFavorite, onToggleFa
       }`}
     >
       {/* Avatar Overlay at the top center */}
-      {artisan.gorsel ? (
-        <img
-          src={artisan.gorsel}
-          alt={artisan.mekan}
-          loading="lazy"
-          referrerPolicy="no-referrer"
-          className="absolute -top-12 left-1/2 -translate-x-1/2 w-24 h-24 rounded-full border-4 border-root shadow-lg object-cover z-20 group-hover:scale-105 transition-transform duration-500"
-          onError={(e) => {
-            (e.target as HTMLImageElement).style.display = 'none';
-          }}
-        />
-      ) : (
-        <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-24 h-24 rounded-full border-4 border-root shadow-lg bg-surface-hover flex items-center justify-center z-20 text-accent text-3xl font-serif">
-          {artisan.mekan.charAt(0)}
-        </div>
-      )}
+      <img
+        src={displayImage}
+        alt={artisan.mekan}
+        loading="lazy"
+        referrerPolicy="no-referrer"
+        className="absolute -top-12 left-1/2 -translate-x-1/2 w-24 h-24 rounded-full border-4 border-root shadow-lg object-cover z-20 group-hover:scale-105 transition-transform duration-500"
+        onError={(e) => {
+          (e.target as HTMLImageElement).style.display = 'none';
+        }}
+      />
 
       {/* Decorative award crest in the background (wrapped by overflow-hidden to clip cleanly) */}
       <div className="absolute inset-0 overflow-hidden rounded-xl pointer-events-none z-0">
