@@ -3,25 +3,29 @@ import L from 'leaflet';
 import { Esnaf } from '../types';
 import { motion, useSpring, useTransform } from 'motion/react';
 import { getFallbackImage } from '../imageHelper';
+import { getCategoryColor } from '../categoryColors';
 
 interface MapSectionProps {
   filteredArtisans: Esnaf[];
   activeId: string | null;
   onSelectArtisan: (id: string) => void;
   theme?: 'light' | 'dark';
+  categories: string[];
 }
 
 /**
  * Custom dynamic marker styling using Tailwind and pure divs. This bypasses Vite asset hashing failure bugs with Leaflet default pins.
  */
 function getMarkerIcon(isActive: boolean, category: string): L.DivIcon {
+  const bgClass = getCategoryColor(category);
+  
   const pingEffect = isActive
-    ? '<div class="absolute w-12 h-12 rounded-full bg-accent/30 animate-ping"></div>'
-    : '<div class="absolute w-8 h-8 rounded-full bg-accent-light/30 animate-ping"></div>';
+    ? `<div class="absolute w-12 h-12 rounded-full ${bgClass} opacity-40 animate-ping"></div>`
+    : `<div class="absolute w-8 h-8 rounded-full ${bgClass} opacity-30 animate-ping"></div>`;
 
   const pinColor = isActive
-    ? 'bg-accent border-root scale-125 z-[500]'
-    : 'bg-accent hover:bg-accent-hover border-root scale-100 z-10';
+    ? `${bgClass} border-root scale-125 z-[500]`
+    : `${bgClass} opacity-90 hover:opacity-100 hover:scale-110 border-root scale-100 z-10`;
 
   return L.divIcon({
     className: 'custom-div-icon',
@@ -94,7 +98,7 @@ function YilCounter({ yil }: { yil?: string | number }) {
   );
 }
 
-export function MapSection({ filteredArtisans, activeId, onSelectArtisan, theme = 'light' }: MapSectionProps) {
+export function MapSection({ filteredArtisans, activeId, onSelectArtisan, theme = 'light', categories }: MapSectionProps) {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<L.Map | null>(null);
   const markersRef = useRef<{ [key: string]: L.Marker }>({});
@@ -286,6 +290,8 @@ export function MapSection({ filteredArtisans, activeId, onSelectArtisan, theme 
   const latStr = activeArtisan ? `${activeArtisan.enlem.toFixed(4)}° K` : "41.0125° K";
   const lngStr = activeArtisan ? `${activeArtisan.boylam.toFixed(4)}° D` : "28.9750° D";
 
+  const nonTumuCategories = categories.filter(c => c !== 'Tümü');
+
   return (
     <div className="w-full h-full relative group">
       {/* Visual map outline edge shimmer */}
@@ -294,9 +300,29 @@ export function MapSection({ filteredArtisans, activeId, onSelectArtisan, theme 
         İstanbul Kültür Atlası
       </div>
 
+      {/* Categories Legend Overlay */}
+      <div className="absolute bottom-24 right-4 p-2.5 bg-surface/60 border border-border/50 rounded-lg backdrop-blur-md z-[1000] shadow-xl pointer-events-auto transition-all">
+        <h4 className="text-[8px] font-mono font-bold text-content-sec uppercase tracking-widest mb-2 pb-1.5 border-b border-border/30">LEJANT</h4>
+        <div className="flex flex-col gap-1.5">
+          {nonTumuCategories.map((cat, idx) => {
+            const bgClass = getCategoryColor(cat);
+            return (
+              <div key={idx} className="flex items-center gap-2 group/legend">
+                <div className={`w-2.5 h-2.5 rounded-full ${bgClass} border border-root/50 flex-shrink-0 relative`}>
+                  <div className={`absolute inset-0 rounded-full ${bgClass} opacity-40 animate-ping`}></div>
+                </div>
+                <span className="text-[9px] font-mono font-medium text-content-sec group-hover/legend:text-content transition-colors truncate max-w-[120px]">
+                  {cat}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Scale & Info Overlay aligning with Elegant Dark specification */}
       {activeArtisan && (
-        <div className="absolute bottom-4 left-4 p-3 bg-surface border border-border-strong rounded-lg backdrop-blur-md z-[400] shadow-2xl transition-all duration-500 animate-fade-in pointer-events-none">
+        <div className="absolute bottom-4 left-4 p-3 bg-surface/90 border border-border-strong rounded-lg backdrop-blur-md z-[1000] shadow-2xl transition-all duration-500 animate-fade-in pointer-events-none">
           <div className="flex items-center gap-3">
             <div className="flex flex-col">
               <p className="text-[9px] font-mono text-content-muted uppercase tracking-widest">Koordinatlar</p>

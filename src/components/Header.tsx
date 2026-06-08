@@ -8,9 +8,10 @@ interface HeaderProps {
   onToggleTheme: () => void;
   viewMode: 'map' | 'archive';
   onViewModeChange: (mode: 'map' | 'archive') => void;
+  projectLogo?: string;
 }
 
-export function Header({ filteredCount, selectedCategory, theme, onToggleTheme, viewMode, onViewModeChange }: HeaderProps) {
+export function Header({ filteredCount, selectedCategory, theme, onToggleTheme, viewMode, onViewModeChange, projectLogo }: HeaderProps) {
   return (
     <header className="border-b border-border bg-overlay backdrop-blur-md p-6 md:p-8 relative overflow-hidden z-20">
       {/* Decorative backdrop patterns from the design */}
@@ -20,19 +21,23 @@ export function Header({ filteredCount, selectedCategory, theme, onToggleTheme, 
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-6 relative z-10">
         <div className="flex items-start md:items-center gap-4">
           {/* Elegant Dark Brand Icon */}
-          <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center shadow-lg shadow-accent/20 shrink-0 select-none">
-            <span className="text-2xl font-bold italic text-root">İ</span>
+          <div className="w-20 h-20 bg-root rounded-full flex items-center justify-center shadow-lg shadow-accent/20 shrink-0 select-none overflow-hidden border-2 border-border/50">
+            {projectLogo ? (
+              <img src={projectLogo} alt="Logo" className="w-full h-full object-cover object-center" referrerPolicy="no-referrer" />
+            ) : (
+              <span className="text-4xl font-bold italic text-content">İ</span>
+            )}
           </div>
           <div>
             {/* Tagline / Subtitle */}
-            <div className="flex items-center gap-2 mb-1 text-content-muted font-mono text-[10px] font-bold tracking-widest uppercase">
+            <div className="flex items-center gap-2 mb-1 text-content-muted font-mono text-[10px] font-bold tracking-widest">
               <Compass className="w-3.5 h-3.5 text-accent animate-spin-slow" />
-              <span>Somut Olmayan Kültürel Miras Envanteri</span>
+              <span>KÜRESELLEŞMEYE DİRENEN EFSANELER</span>
             </div>
             
             {/* Main Editorial Title Small */}
             <h1 className="font-serif text-xl md:text-2xl font-bold tracking-tight text-content">
-              İSTANBUL'UN <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent to-accent-light">YAŞAYAN ESNAFI</span>
+              İstanbul'un <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent to-accent-light">Yaşayan Zanaatkarları</span>
             </h1>
           </div>
         </div>

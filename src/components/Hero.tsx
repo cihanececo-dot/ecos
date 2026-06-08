@@ -17,8 +17,8 @@ export function Hero({ onDiscover }: HeroProps) {
       <div className="relative z-10 flex flex-col items-center justify-center text-center max-w-4xl px-4 sm:px-6">
         <div className="inline-flex items-center gap-3 px-5 py-2 border border-border-strong rounded-full bg-surface/50 backdrop-blur-sm mb-8 animate-fade-in shadow-sm">
           <Sparkles className="w-4 h-4 text-accent" />
-          <span className="text-[10px] md:text-xs font-mono font-bold tracking-[0.2em] uppercase text-content-muted">
-            Somut Olmayan Kültürel Miras Envanteri
+          <span className="text-[10px] md:text-xs font-mono font-bold tracking-[0.2em] text-content-muted">
+            KÜRESELLEŞMEYE DİRENEN EFSANELER
           </span>
           <Sparkles className="w-4 h-4 text-accent" />
         </div>

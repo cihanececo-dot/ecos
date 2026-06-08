@@ -14,4 +14,5 @@ export interface Esnaf {
   gorsel: string;
   video: string;
   yil: string | number;
+  logo?: string;
 }

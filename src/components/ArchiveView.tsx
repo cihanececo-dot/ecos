@@ -1,7 +1,7 @@
 import React from 'react';
 import { Esnaf } from '../types';
 import { getFallbackImage } from '../imageHelper';
-import { Award, ArrowRight } from 'lucide-react';
+import { Award, ArrowRight, Phone } from 'lucide-react';
 import { motion } from 'motion/react';
 
 interface ArchiveViewProps {
@@ -60,7 +60,19 @@ export function ArchiveView({ artisans, onGoToStory }: ArchiveViewProps) {
                   {artisan.mekan}
                 </h3>
                 
-                <div className="mt-auto pt-4 flex justify-end">
+                <div className="mt-auto pt-4 flex items-center justify-between border-t border-border mt-4">
+                  {artisan.telefon ? (
+                    <a 
+                      href={`tel:${artisan.telefon.replace(/[^0-9+]/g, '')}`} 
+                      className="flex items-center gap-1.5 text-[10px] font-bold text-content-sec hover:text-accent transition-colors font-mono uppercase tracking-wide bg-surface-hover px-2.5 py-1.5 rounded-md"
+                      title="Ara"
+                    >
+                      <Phone className="w-3.5 h-3.5" />
+                      Ara
+                    </a>
+                  ) : (
+                    <div></div>
+                  )}
                   <button 
                     onClick={() => onGoToStory(artisan.no)}
                     className="flex items-center gap-1.5 text-xs font-bold text-accent hover:text-accent-hover transition-colors font-mono uppercase tracking-wide group/btn"

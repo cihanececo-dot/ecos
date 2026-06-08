@@ -105,6 +105,8 @@ export default function App() {
                 videoUrl = videoUrl || 'https://www.youtube.com/embed/JQAiQT1J0Cc';
               }
 
+              const logoKey = Object.keys(row).find(k => k.toLowerCase().trim() === 'logo');
+
               return {
                 no: row.no || '',
                 mekan: mekanName,
@@ -116,6 +118,7 @@ export default function App() {
                 gorsel: row['görsel'] || row.gorsel || '',
                 video: videoUrl,
                 yil: row.yil || row['yıl'] || '',
+                logo: logoKey ? row[logoKey] : '',
               };
             })
             // Filter out corrupt lines that don't have valid locations
@@ -177,6 +180,12 @@ export default function App() {
       return matchesCategory && matchesSearch && matchesFavorites;
     });
   }, [artisans, selectedCategory, searchQuery, showFavoritesOnly, favorites]);
+
+  // Extract the project logo from the first valid artisan record that has one
+  const projectLogo = useMemo(() => {
+    const artisanWithLogo = artisans.find(a => a.logo && a.logo.trim() !== '');
+    return artisanWithLogo ? artisanWithLogo.logo : undefined;
+  }, [artisans]);
 
   // Adjust active ID if current selection gets excluded by filter changes
   useEffect(() => {
@@ -260,6 +269,7 @@ export default function App() {
           onToggleTheme={handleToggleTheme}
           viewMode={viewMode}
           onViewModeChange={setViewMode}
+          projectLogo={projectLogo}
         />
 
         {/* Control center: Category Pill bar & Searching box */}
@@ -370,9 +380,9 @@ export default function App() {
             <section className="col-span-12 md:col-span-5 flex flex-col space-y-6 order-2 md:order-1 pt-4">
               
               {/* Dynamic status statement */}
-              <div className="flex items-center gap-2 text-[10px] font-mono font-bold tracking-widest text-content-muted uppercase border-b border-border pb-3">
+              <div className="flex items-center gap-2 text-[10px] font-mono font-bold tracking-widest text-content-muted border-b border-border pb-3">
                 <Compass className="w-3.5 h-3.5 text-accent shrink-0" />
-                <span>KAYDIRMAİLE HİKAYELERDE GEZİNİN</span>
+                <span>KAYDIRARAK HİKAYELERDE GEZİNİN</span>
               </div>
 
               {/* Empty state when filters output nothing */}
@@ -413,6 +423,7 @@ export default function App() {
                   activeId={activeId}
                   onSelectArtisan={handleSelectArtisan}
                   theme={theme}
+                  categories={categories}
                 />
               </div>
             </section>
